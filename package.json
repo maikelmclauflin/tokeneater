@@ -1,0 +1,20 @@
+{
+  "name": "tokeneater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmclau14/tokeneater.git"
+  },
+  "keywords": [],
+  "author": "Michael McLaughlin <michael@gospecless.com> (https://gospecless.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mmclau14/tokeneater/issues"
+  },
+  "homepage": "https://github.com/mmclau14/tokeneater#readme"
+}
