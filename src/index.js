@@ -1,7 +1,7 @@
 module.exports = tokenator;
 
 function tokenator(options) {
-    var regexp = options.match || /([\s+|\W|\w+\.*])/igm;
+    var regexp = options.match || /(\s+|\W|\w+)/igm;
     var target = options.target || '';
     var tokens = options.tokens || [];
     var execHandle = options.execHandle || newLine;
@@ -11,25 +11,29 @@ function tokenator(options) {
     return lines ? reduce(lines, operateOnLine, memo) : operateOnLine(memo, target, 0);
 
     function operateOnLine(memo, item, index) {
-        var result = reduce(item.match(regexp), function (memo, item) {
-            var token, matched;
-            if ((token = find(tokens, function (token) {
-                    if (token.regexp) {
-                        matched = item.match(token);
+        var im = item.match(regexp);
+        var lineindex = index;
+        var result = reduce(im, function (memo, item, index) {
+            var matched, m = memo,
+                token = find(tokens, function (token) {
+                    var match = token.match || /./igm;
+                    if (match) {
+                        matched = item.match(match);
                         return matched;
                     }
-                }))) {
-                token.handle(memo, item, index, toArray(matched));
+                });
+            if (token && token.handle) {
+                m = token.handle(memo, item, index, toArray(matched), lineindex);
             }
-            return memo;
+            return m;
         }, memo);
         var line = lines && lines[index];
-        return line ? execHandle(result) : result;
+        return line ? execHandle(result, line, index) : result;
     }
 }
 
 function newLine(memo) {
-    return memo + '\n';
+    return memo.concat('\n');
 }
 
 function toArray(target) {
@@ -38,9 +42,9 @@ function toArray(target) {
 
 function reduce(list, fn, memo) {
     var m = memo;
-    forEachEnd(list, function (item, index, list) {
+    forEachEnd(list || [], function (item, index, list) {
         var result = fn(m, item, index, list);
-        if (isNil(result)) {
+        if (!isNil(result)) {
             m = result;
         }
     });
