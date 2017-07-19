@@ -34,6 +34,21 @@ b.describe('tokeneater', function () {
         });
         t.expect(result).toBe('yM eman si yrneh.');
     }, list.length + 1);
+    b.it('iterates over blocks', function (t) {
+        var result = tokeneater({
+            block: /,/igm,
+            target: 'dog, cat, bear, elephant, ..., giraffe',
+            newBlock: function (memo) {
+                return memo;
+            },
+            tokens: [{
+                handle: function (memo, item) {
+                    return memo + item;
+                }
+            }]
+        });
+        t.expect(result).toBe('dog cat bear elephant ... giraffe');
+    });
     // b.it('handles lines by replacing them', function () {
     //     //
     // });

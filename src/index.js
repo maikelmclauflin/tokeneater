@@ -4,31 +4,33 @@ function tokenator(options) {
     var regexp = options.match || /(\s+|\W|\w+)/igm;
     var target = options.target || '';
     var tokens = options.tokens || [];
-    var execHandle = options.execHandle || newLine;
-    var executor = options.exec || /(\r|\n)/igm;
-    var lines = executor.exec(target);
+    var execHandle = options.newBlock || newLine;
+    var block = options.block || /(\r|\n)/igm;
+    var lines = target.split(block);
     var memo = options.memo || '';
-    return lines ? reduce(lines, operateOnLine, memo) : operateOnLine(memo, target, 0);
+    return reduce(lines, operateOnLine, memo);
 
-    function operateOnLine(memo, item, index) {
-        var im = item.match(regexp);
-        var lineindex = index;
-        var result = reduce(im, function (memo, item, index) {
-            var matched, m = memo,
-                token = find(tokens, function (token) {
-                    var match = token.match || /./igm;
-                    if (match) {
-                        matched = item.match(match);
-                        return matched;
-                    }
-                });
-            if (token && token.handle) {
-                m = token.handle(memo, item, index, toArray(matched), lineindex);
-            }
-            return m;
-        }, memo);
-        var line = lines && lines[index];
-        return line ? execHandle(result, line, index) : result;
+    function operateOnLine(memo, item, index, lines) {
+        var lineindex, line, result = memo;
+        if (item) {
+            lineindex = index;
+            result = reduce(item.match(regexp), function (memo, item, index) {
+                var matched, m = memo,
+                    token = find(tokens, function (token) {
+                        var match = token.match || /./igm;
+                        if (match) {
+                            matched = item.match(match);
+                            return matched;
+                        }
+                    });
+                if (token && token.handle) {
+                    m = token.handle(memo, item, index, toArray(matched), lineindex);
+                }
+                return m;
+            }, memo);
+        }
+        line = lines.length - 1 !== index && lines[index];
+        return line !== false ? execHandle(result, line, index) : result;
     }
 }
 
